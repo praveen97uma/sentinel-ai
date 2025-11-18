@@ -5,6 +5,7 @@ import com.phonepe.sentinelai.core.agent.*;
 import com.phonepe.sentinelai.core.earlytermination.NeverTerminateEarlyStrategy;
 import com.phonepe.sentinelai.core.errorhandling.DefaultErrorHandler;
 import com.phonepe.sentinelai.core.outputvalidation.DefaultOutputValidator;
+import com.phonepe.sentinelai.core.hooks.AgentMessagesPreProcessor;
 import com.phonepe.sentinelai.core.tools.ToolBox;
 import com.phonepe.sentinelai.core.utils.JsonUtils;
 import lombok.SneakyThrows;
@@ -53,6 +54,12 @@ public class ConfiguredAgent {
             final List<AgentExtension<String, String, RootAgent>> rootAgentExtensions,
             final ToolBox availableTools) {
         this.rootAgent = new RootAgent(agentConfiguration, rootAgentExtensions, availableTools);
+    }
+
+    public ConfiguredAgent registerAgentMessagesPreProcessors(List<AgentMessagesPreProcessor> preProcessors) {
+        if (preProcessors == null) return this;
+        preProcessors.forEach(this.rootAgent::registerAgentMessagesPreProcessor);
+        return this;
     }
 
     @SneakyThrows
