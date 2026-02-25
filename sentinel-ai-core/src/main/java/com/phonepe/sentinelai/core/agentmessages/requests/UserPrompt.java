@@ -16,6 +16,7 @@
 
 package com.phonepe.sentinelai.core.agentmessages.requests;
 
+import com.phonepe.sentinelai.core.agent.Attachment;
 import com.phonepe.sentinelai.core.agentmessages.AgentMessageType;
 import com.phonepe.sentinelai.core.agentmessages.AgentRequest;
 import com.phonepe.sentinelai.core.agentmessages.AgentRequestVisitor;
@@ -28,6 +29,7 @@ import lombok.Value;
 import lombok.extern.jackson.Jacksonized;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Objects;
 
 /**
@@ -39,12 +41,21 @@ import java.util.Objects;
 public class UserPrompt extends AgentRequest {
     String content;
     LocalDateTime sentAt;
+    List<Attachment> attachments;
 
     public UserPrompt(String sessionId,
                       String runId,
                       @NonNull String content,
                       LocalDateTime sentAt) {
-        this(sessionId, runId, null, null, content, sentAt);
+        this(sessionId, runId, null, null, content, sentAt, List.of());
+    }
+
+    public UserPrompt(String sessionId,
+                      String runId,
+                      @NonNull String content,
+                      LocalDateTime sentAt,
+                      List<Attachment> attachments) {
+        this(sessionId, runId, null, null, content, sentAt, attachments);
     }
 
     @Builder
@@ -54,7 +65,8 @@ public class UserPrompt extends AgentRequest {
                       String messageId,
                       Long timestamp,
                       @NonNull String content,
-                      LocalDateTime sentAt) {
+                      LocalDateTime sentAt,
+                      List<Attachment> attachments) {
         super(AgentMessageType.USER_PROMPT_REQUEST_MESSAGE,
               sessionId,
               runId,
@@ -62,6 +74,7 @@ public class UserPrompt extends AgentRequest {
               timestamp);
         this.content = content;
         this.sentAt = Objects.requireNonNullElse(sentAt, LocalDateTime.now());
+        this.attachments = attachments;
     }
 
     @Override

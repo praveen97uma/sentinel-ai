@@ -14,24 +14,31 @@
  * limitations under the License.
  */
 
-package com.phonepe.sentinelai.core.hooks;
-
-import com.phonepe.sentinelai.core.model.ModelRunContext;
+package com.phonepe.sentinelai.core.agent;
 
 import lombok.Builder;
 import lombok.Value;
-import lombok.With;
+import lombok.extern.jackson.Jacksonized;
 
 
 /**
- * Context passed to an agent messages pre-process handler.
+ * Represents image content in a multimodal input.
+ * Supports both URL-based and base64-encoded images.
  */
 @Value
 @Builder
-@With
-public class AgentMessagesPreProcessContext {
-    /**
-     * The context of the model run, which includes metadata about the agent and the request.
-     */
-    ModelRunContext modelRunContext;
+@Jacksonized
+public class ImageFileAttachment implements Attachment {
+
+    String filePath;
+
+    @Override
+    public <T> T accept(final Visitor<T> visitor) {
+        return visitor.visit(this);
+    }
+
+    @Override
+    public AttachmentType getType() {
+        return AttachmentType.IMAGE;
+    }
 }

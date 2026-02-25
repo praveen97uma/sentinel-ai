@@ -347,10 +347,7 @@ public abstract class Agent<R, T, A extends Agent<R, T, A>> {
         messages.add(new com.phonepe.sentinelai.core.agentmessages.requests.SystemPrompt(AgentUtils
                 .sessionId(context), runId, finalSystemPrompt, false, null));
         messages.addAll(extensionMessages(inputRequest, context));
-        messages.add(new UserPrompt(AgentUtils.sessionId(context),
-                                    context.getRunId(),
-                                    toXmlContent(inputRequest),
-                                    LocalDateTime.now()));
+        messages.add(toUserPrompt(context, input));
         final var processingMode = ProcessingMode.DIRECT;
         final var modelRunContext = new ModelRunContext(name(),
                                                         runId,
@@ -395,6 +392,14 @@ public abstract class Agent<R, T, A extends Agent<R, T, A>> {
                                                                             ProcessingMode.DIRECT));
                     return response;
                 });
+    }
+
+    private UserPrompt toUserPrompt(final AgentRunContext<R> context, final AgentInput<R> inputRequest) {
+        return new UserPrompt(AgentUtils.sessionId(context),
+                              context.getRunId(),
+                              toXmlContent(inputRequest.getRequest()),
+                              LocalDateTime.now(),
+                              inputRequest.getAttachments());
     }
 
     /**

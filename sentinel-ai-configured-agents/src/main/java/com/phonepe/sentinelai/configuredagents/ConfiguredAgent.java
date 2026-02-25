@@ -92,7 +92,8 @@ public class ConfiguredAgent {
                                                        input.getFacts(),
                                                        input.getRequestMetadata(),
                                                        input.getOldMessages(),
-                                                       null // We do not forward the setup here to use setup from rootAgent
+                                                       null, // We do not forward the setup here to use setup from rootAgent,
+                                                       input.getAttachments()
         )).thenApply(output -> {
             try {
                 final var error = output.getError();

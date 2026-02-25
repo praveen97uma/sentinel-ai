@@ -16,10 +16,14 @@
 
 package com.phonepe.sentinelai.models.utils;
 
+import io.github.sashirestela.openai.common.content.ContentPart;
 import io.github.sashirestela.openai.common.function.FunctionCall;
 import io.github.sashirestela.openai.common.tool.ToolType;
 import io.github.sashirestela.openai.domain.chat.ChatMessage;
+import io.github.sashirestela.openai.support.Base64Util;
 
+import com.phonepe.sentinelai.core.agent.Attachment;
+import com.phonepe.sentinelai.core.agent.ImageFileAttachment;
 import com.phonepe.sentinelai.core.agentmessages.AgentGenericMessage;
 import com.phonepe.sentinelai.core.agentmessages.AgentGenericMessageVisitor;
 import com.phonepe.sentinelai.core.agentmessages.AgentMessage;
@@ -39,6 +43,7 @@ import com.phonepe.sentinelai.core.agentmessages.responses.ToolCall;
 
 import lombok.experimental.UtilityClass;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -119,6 +124,29 @@ public class OpenAIMessageUtils {
 
                     @Override
                     public ChatMessage visit(UserPrompt userPrompt) {
+                        if (userPrompt.getAttachments() != null && !userPrompt.getAttachments().isEmpty()) {
+                            List<ContentPart> parts = new ArrayList<>();
+                            parts.add(ContentPart.ContentPartText.of(userPrompt.getContent()));
+                            userPrompt.getAttachments().forEach(attachment -> {
+                                if (attachment.getType().equals(Attachment.AttachmentType.IMAGE)) {
+                                    parts.add(attachment.accept(new Attachment.Visitor<ContentPart>() {
+                                        @Override
+                                        public ContentPart visit(final ImageFileAttachment image) {
+                                            return ContentPart.ContentPartImageUrl.of(
+                                                                                      ContentPart.ContentPartImageUrl.ImageUrl
+                                                                                              .of(
+                                                                                                  Base64Util.encode(
+                                                                                                                    image.getFilePath(),
+                                                                                                                    Base64Util.MediaType.IMAGE)
+                                                                                              ));
+
+                                        }
+                                    }));
+                                }
+                            });
+
+                            return ChatMessage.UserMessage.of(parts);
+                        }
                         return ChatMessage.UserMessage.of(userPrompt
                                 .getContent());
                     }
